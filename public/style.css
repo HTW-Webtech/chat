@@ -225,7 +225,9 @@ button:-moz-focusring,
 body {
   display: flex;
   flex-direction: column;
+  max-width: 50rem;
   max-height: 100vh;
+  margin: 0 auto;
   padding: 1rem;
   font-size: 16px;
   color: #333;
@@ -233,6 +235,16 @@ body {
 
 h1 {
   margin: 0;
+}
+
+hr {
+  margin: 2rem 0;
+}
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .login-form input,
@@ -277,8 +289,6 @@ h1 {
 }
 
 .messages header {
-  display: flex;
-  justify-content: space-between;
   color: #888;
 }
 

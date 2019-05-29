@@ -2,18 +2,20 @@
   "name": "chat",
   "version": "1.0.0",
   "description": "simple chat service",
-  "main": "app.js",
+  "main": "index.js",
   "author": "Maximilian Beier",
   "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node .",
+    "dev": "nodemon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
     "ejs": "^2.6.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "helmet": "^3.18.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

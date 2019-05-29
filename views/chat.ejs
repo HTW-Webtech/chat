@@ -7,16 +7,16 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>
-    Hallo <%= user %>
-    <small>
-      <a href="/logout">logout</a>
-    </small>
-  </h1>
+  <div class="spread">
+    <h1>
+      Hallo <%= user %>
+    </h1>
+    <a href="/logout">logout</a>
+  </div>
   <ul class="messages">
     <% messages.forEach(message => { %>
       <li>
-        <header>
+        <header class="spread">
           <span class="author"><%= message.user %></span>
           <time><%= new Date(message.date).toLocaleString() %></time>
         </header>
