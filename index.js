@@ -65,8 +65,9 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   const user = sessions[req.cookies.session];
-  const { message } = req.body;
-  addMessage({ user: user.id, content: message }, () => res.redirect('/'));
+  const { message, type, location } = req.body;
+  const content = type === 'text' ? message : location;
+  addMessage({ user: user.id, content, type }, () => res.redirect('/'));
 });
 
 app.get('/register', (req, res) => {

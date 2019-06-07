@@ -11,7 +11,7 @@
     <h1>
       Hallo <%= user.name %>
     </h1>
-    <a href="/logout">logout</a>
+    <a id="logout" href="/logout">logout</a>
   </div>
   <ul class="messages">
     <% messages.forEach(message => { %>
@@ -20,13 +20,42 @@
           <span class="author"><%= message.name %></span>
           <time><%= new Date(message.created_at).toLocaleString() %></time>
         </header>
-        <p><%= message.content %></p>
+        <p>
+          <%- message.type === 'text'
+            ? message.content
+            : `<a target="_blank" href="http://maps.google.com/?q=${message.content}">my current location</a>`
+          %>
+        </p>
       </li>
     <% }); %>
   </ul>
   <form class="message-form" action="/" method="POST" accept-charset="utf-8">
     <input name="message" autofocus>
-    <button type="submit">send</button>
+    <input type="hidden" name="location">
+    <button type="submit" name="type" value="text">send</button>
+    <button type="submit" name="type" value="location" disabled>map</button>
   </form>
+  <script>
+    // watch users location
+    const locationInput = document.querySelector('input[name="location"]');
+    const mapButton = document.querySelector('button[value="location"]');
+    navigator.geolocation.watchPosition(position => {
+      locationInput.value = `${position.coords.latitude},${position.coords.longitude}`;
+      mapButton.disabled = false;
+    });
+
+    // scroll to the last message
+    const messages = document.querySelector('.messages');
+    messages.scrollTop = messages.scrollHeight;
+
+    // confirm logout request
+    const logoutButton = document.querySelector('#logout');
+    logoutButton.addEventListener('click', (ev) => {
+      const isSure = confirm('Wirklich ausloggen?');
+      if (!isSure) {
+        ev.preventDefault();
+      }
+    });
+  </script>
 </body>
 </html>
