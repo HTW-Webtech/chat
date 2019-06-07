@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: db.f4.htw-berlin.de:3306
--- Generation Time: Jun 07, 2019 at 04:03 PM
+-- Generation Time: Jun 07, 2019 at 06:49 PM
 -- Server version: 5.6.39
 -- PHP Version: 5.6.33-0+deb8u1
 
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `user` int(10) unsigned DEFAULT NULL,
   `type` varchar(32) NOT NULL DEFAULT 'text',
   `content` varchar(1024) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 

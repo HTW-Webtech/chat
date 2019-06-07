@@ -19,6 +19,7 @@ const connection = mysql.createConnection({
   user: '<IHR NUTZER>',
   password: '<IHR PASSWORT>',
   database: '<IHRE DATENBANK>',
+  charset: 'utf8mb4',
 });
 
 const getMessages = cb =>
