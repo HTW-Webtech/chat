@@ -3,6 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const mysql = require('mysql');
 
 const app = express();
 
@@ -13,23 +14,43 @@ app.use(helmet()); // gibt mehr sicherheit
 app.use(cookieParser()); // cookies sollen vorberarbeitet werden
 app.use(bodyParser.urlencoded({ extended: false })); // … und formularinhalte auch
 
+const connection = mysql.createConnection({
+  host: 'db.f4.htw-berlin.de',
+  user: '<IHR NUTZER>',
+  password: '<IHR PASSWORT>',
+  database: '<IHRE DATENBANK>',
+});
+
+const getMessages = cb =>
+  connection.query(
+    'select messages.*, users.name from messages join users on users.id = messages.user',
+    (err, result) => cb(result),
+  );
+
+const addMessage = (message, cb) =>
+  connection.query('insert into messages set ?', message, cb);
+
+const getUsers = cb =>
+  connection.query('select * from users', (err, result) => cb(result));
+
+const checkCredentials = (name, password, cb) =>
+  connection.query(
+    'select * from users where name = ? and password = ?',
+    [name, password],
+    (err, result) => cb(result[0]),
+  );
+
+const addUser = (user, cb) =>
+  connection.query('insert into users set ?', user, cb);
+
 // generiert eine zufällige zeichenkette
 const generateToken = () =>
   Math.random()
     .toString(36)
     .substr(2);
 
-// map aller benutzer und deren passwörter
-const users = {
-  max: 'moritz', // haha
-};
 // map aller sessions und deren user (anfänglich keine)
 const sessions = {};
-// liste aller nachrichten
-const messages = [
-  { user: 'Alice', date: 1558704463209, message: 'Hello Bob' },
-  { user: 'Bob', date: 1558704563209, message: 'Hello Alice' },
-];
 
 // Express-Routen
 
@@ -38,16 +59,14 @@ app.get('/', (req, res) => {
   if (!user) {
     res.redirect('/login');
   } else {
-    res.render('chat', { user, messages });
+    getMessages(messages => res.render('chat', { user, messages }));
   }
 });
 
 app.post('/', (req, res) => {
   const user = sessions[req.cookies.session];
-  const date = Date.now();
   const { message } = req.body;
-  messages.push({ user, date, message });
-  res.redirect('/');
+  addMessage({ user: user.id, content: message }, () => res.redirect('/'));
 });
 
 app.get('/register', (req, res) => {
@@ -56,8 +75,7 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { name, password } = req.body;
-  users[name] = password;
-  res.redirect('/login');
+  addUser({ name, password }, () => res.redirect('/login'));
 });
 
 app.get('/login', (req, res) => {
@@ -66,14 +84,16 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { name, password } = req.body;
-  if (users[name] === password) {
-    const session = generateToken();
-    sessions[session] = name;
-    res.cookie('session', session);
-    res.redirect('/');
-  } else {
-    res.redirect('/login');
-  }
+  checkCredentials(name, password, user => {
+    if (user) {
+      const session = generateToken();
+      sessions[session] = user;
+      res.cookie('session', session);
+      res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+  });
 });
 
 app.get('/logout', (req, res) => {

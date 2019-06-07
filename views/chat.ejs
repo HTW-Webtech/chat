@@ -9,7 +9,7 @@
 <body>
   <div class="spread">
     <h1>
-      Hallo <%= user %>
+      Hallo <%= user.name %>
     </h1>
     <a href="/logout">logout</a>
   </div>
@@ -17,10 +17,10 @@
     <% messages.forEach(message => { %>
       <li>
         <header class="spread">
-          <span class="author"><%= message.user %></span>
-          <time><%= new Date(message.date).toLocaleString() %></time>
+          <span class="author"><%= message.name %></span>
+          <time><%= new Date(message.created_at).toLocaleString() %></time>
         </header>
-        <p><%= message.message %></p>
+        <p><%= message.content %></p>
       </li>
     <% }); %>
   </ul>
