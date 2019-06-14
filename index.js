@@ -12,6 +12,7 @@ app.set('views', join(__dirname, '/views')); // … und liegen im ordner "views"
 app.use(express.static(join(__dirname, '/public'))); // alles im ordner "public" soll direkt als datei ausgeliefert werden
 app.use(helmet()); // gibt mehr sicherheit
 app.use(cookieParser()); // cookies sollen vorberarbeitet werden
+app.use(bodyParser.json()); // … und formularinhalte auch
 app.use(bodyParser.urlencoded({ extended: false })); // … und formularinhalte auch
 
 const connection = mysql.createConnection({
@@ -53,22 +54,43 @@ const generateToken = () =>
 // map aller sessions und deren user (anfänglich keine)
 const sessions = {};
 
+app.use((req, res, next) => {
+  req.user = sessions[req.cookies.session];
+  next();
+});
+
+const checkAuth = (req, res, next) => {
+  if (!req.user) {
+    res.sendStatus(401);
+  } else {
+    next();
+  }
+};
+
 // Express-Routen
 
 app.get('/', (req, res) => {
-  const user = sessions[req.cookies.session];
-  if (!user) {
+  if (!req.user) {
     res.redirect('/login');
   } else {
-    getMessages(messages => res.render('chat', { user, messages }));
+    res.render('chat', { user: req.user });
   }
 });
 
+app.get('/messages', checkAuth, (req, res) => {
+  getMessages(messages => res.send(messages));
+});
+
+app.post('/messages', checkAuth, (req, res) => {
+  const { message, type = 'text', location } = req.body;
+  const content = message;
+  addMessage({ user: req.user.id, content, type }, () => res.sendStatus(200));
+});
+
 app.post('/', (req, res) => {
-  const user = sessions[req.cookies.session];
-  const { message, type, location } = req.body;
-  const content = type === 'text' ? message : location;
-  addMessage({ user: user.id, content, type }, () => res.redirect('/'));
+  const { message, type = 'text', location } = req.body;
+  const content = type === 'location' ? location : message;
+  addMessage({ user: req.user.id, content, type }, () => res.redirect('/'));
 });
 
 app.get('/register', (req, res) => {
